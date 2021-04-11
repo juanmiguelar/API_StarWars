@@ -17,3 +17,68 @@ class User(db.Model):
             "email": self.email,
             # do not serialize the password, its a security breach
         }
+
+class Planet(db.Model):
+    # Here we define columns for the table person
+    # Notice that each column is also a normal Python instance attribute.
+    id = db.Column(db.Integer, primary_key=True)
+    diameter = db.Column(db.Integer, nullable=True)
+    rotation_period = db.Column(db.Integer, nullable=True)
+    orbital_period = db.Column(db.Integer, nullable=True)
+    gravity = db.Column(db.Integer, nullable=True)
+    population = db.Column(db.Integer, nullable=True)
+    climate = db.Column(db.String(250), nullable=True)
+    terrain = db.Column(db.String(250), nullable=True)
+    surface_water = db.Column(db.Integer, nullable=True)
+    created = db.Column(db.DateTime, nullable=True)
+    edited = db.Column(db.DateTime, nullable=True)
+    name = db.Column(db.String(250), nullable=True)
+
+     # tell python how convert the class object into a dictionary ready to jsonify
+    def serialize(self):
+        return {
+            "id": self.id,
+            "diameter": self.diameter,
+            "rotation_period": self.rotation_period,
+            "orbital_period": self.orbital_period,
+            "gravity": self.gravity,
+            "population": self.population,
+            "climate": self.climate,
+            "terrain": self.terrain,
+            "surface_water": self.surface_water,
+            "created": self.created,
+            "edited": self.edited,
+            "name": self.name
+        }
+
+class Character(db.Model):
+    __tablename__ = 'character'
+    # Here we define columns for the table address.
+    # Notice that each column is also a normal Python instance attribute.
+    id = db.Column(db.Integer, primary_key=True)
+    height = db.Column(db.Integer, nullable=True)
+    mass = db.Column(db.Integer, nullable=True)
+    hair_color = db.Column(db.String(250), nullable=True)
+    skin_color = db.Column(db.String(250), nullable=True)
+    eye_color = db.Column(db.String(250), nullable=True)
+    birth_year = db.Column(db.String(250), nullable=True)
+    gender = db.Column(db.String(250), nullable=True)
+    name = db.Column(db.String(250), nullable=True)
+    created = db.Column(db.DateTime, nullable=True)
+    edited = db.Column(db.DateTime, nullable=True)  
+
+     # tell python how convert the class object into a dictionary ready to jsonify
+    def serialize(self):
+        return {
+            "id": self.id,
+            "height": self.height,
+            "mass": self.mass,
+            "hair_color": self.hair_color,
+            "skin_color": self.skin_color,
+            "eye_color": self.eye_color,
+            "birth_year": self.birth_year,
+            "gender": self.gender,
+            "name": self.name,
+            "created": self.created,
+            "edited": self.edited
+        }
