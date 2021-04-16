@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Planet, Character
+from models import db, User, Planet, Character, Fav_Planet, Fav_Character
 
 import json
 #from models import Person
@@ -47,7 +47,7 @@ def Get_Planets():
 @app.route('/planets/<int:planet_id>', methods=['GET'])
 def Get_Planet(planet_id):
     planet = Planet.query.get(planet_id)
-    return jsonify(planet), 200     
+    return jsonify(planet.serialize()), 200     
 
 @app.route('/people', methods=['GET'])
 def Get_People():
@@ -56,8 +56,21 @@ def Get_People():
 
 @app.route('/people/<int:people_id>', methods=['GET'])
 def Get_Person(people_id):
+    print("ID GET PEOPLE: ", people_id)
     character = Character.query.get(people_id)
-    return jsonify(character), 200    
+    print("Character: ", character)
+    return jsonify(character.serialize()), 200    
+
+@app.route('/users', methods=['GET'])
+def Get_Users():
+    users = list(map(lambda p: p.serialize(), User.query.all()))
+    return jsonify(users), 200   
+
+@app.route('/users/<int:user_id>/favorites', methods=['GET'])
+def Get_User_Fav(user_id):
+    user = User.query.get(user_id)
+    favs = list(map(lambda p: p.serialize(), user.Fav_Character)) + list(map(lambda p: p.serialize(), user.Fav_Planet))
+    return jsonify(favs), 200      
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
