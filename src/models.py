@@ -101,8 +101,8 @@ class Fav_Planet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
-    user = db.relationship("User", backref=db.backref("Fav_Planet", cascade="all,delete"))
-    planet = db.relationship("Planet", backref=db.backref("Fav_Planet", cascade="all,delete"))
+    user = db.relationship("User", lazy='subquery', backref=db.backref("Fav_Planet", cascade="all,delete"))
+    planet = db.relationship("Planet", lazy='subquery', backref=db.backref("Fav_Planet", cascade="all,delete"))
 
     # tell python how convert the class object into a dictionary ready to jsonify
     def serialize(self):
@@ -121,8 +121,8 @@ class Fav_Character(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     character_id = db.Column(db.Integer, db.ForeignKey('character.id'))
-    user = db.relationship("User", backref=db.backref("Fav_Character", cascade="all,delete"))
-    character = db.relationship("Character", backref=db.backref("Fav_Character", cascade="all,delete"))
+    user = db.relationship("User", lazy='subquery', backref=db.backref("Fav_Character", cascade="all,delete"))
+    character = db.relationship("Character", lazy='subquery', backref=db.backref("Fav_Character", cascade="all,delete"))
 
     # tell python how convert the class object into a dictionary ready to jsonify
     def serialize(self):

@@ -74,11 +74,61 @@ def Get_Users():
     return jsonify(users), 200   
 
 @app.route('/users/<int:user_id>/favorites', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 def Get_User_Fav(user_id):
+    print("hola desde> Get_User_Fav")
     user = User.query.get(user_id)
     favs = list(map(lambda p: p.serialize(), user.Fav_Character)) + list(map(lambda p: p.serialize(), user.Fav_Planet))
-    return jsonify(favs), 200   
+    return jsonify(favs), 200  
+
+@app.route('/users/<int:user_id>/favorites', methods=['POST'])
+#@jwt_required()
+def POST_User_Fav(user_id):
+    print("hola desde> POST_User_Fav")
+    tipo = request.json.get("tipo", None)
+    id = request.json.get("id", None)
+
+    if tipo == "planet":
+        favPlanet = Fav_Planet(user_id=user_id, planet_id=id)
+        db.session.add(favPlanet)
+        db.session.commit()
+
+        return jsonify(favPlanet.serialize()), 200   
+    elif tipo == "people":
+        favPeople = Fav_Character(user_id=user_id, character_id=id)
+        db.session.add(favPeople)
+        db.session.commit()
+
+        return jsonify(favPeople.serialize()), 200  
+
+    return APIException("BadRequest", status_code=400)
+
+@app.route('/favorite/<string:tipo>/<int:favorite_id>', methods=['DELETE'])
+#@jwt_required()
+def DELETE_User_Fav(tipo, favorite_id):
+    print("hola desde> DELETE_User_Fav")
+    print("hola desde> DELETE_User_Fav", tipo)
+    print("hola desde> DELETE_User_Fav", favorite_id)
+    if tipo == "planet":
+        fav_to_del = Fav_Planet.query.filter_by(id=favorite_id).first()
+        if fav_to_del is None:
+            return "Not Found", 404
+        else:
+           db.session.delete(fav_to_del)
+           db.session.commit()      
+           return jsonify(fav_to_del.serialize()), 200         
+    elif tipo == "people":
+        fav_to_del = Fav_Character.query.filter_by(id=favorite_id).first()
+        print(fav_to_del)
+        if fav_to_del is None:
+            return "Not Found", 404
+        else:
+            db.session.delete(fav_to_del)
+            db.session.commit()
+            return jsonify(fav_to_del.serialize()), 200           
+    
+    return "Bad Request", 400
+      
 
 @app.route('/token', methods=['POST'])
 def CreateToken(): 
