@@ -94,41 +94,34 @@ class Character(db.Model):
             "edited": self.edited
         }
 
-class Fav_Planet(db.Model):
-    __tablename__ = 'fav_planet'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Fav(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
-    user = db.relationship("User", lazy='subquery', backref=db.backref("Fav_Planet", cascade="all,delete"))
-    planet = db.relationship("Planet", lazy='subquery', backref=db.backref("Fav_Planet", cascade="all,delete"))
-
-    # tell python how convert the class object into a dictionary ready to jsonify
-    def serialize(self):
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "planet_id": self.planet_id,
-            "content": self.planet.serialize()
-
-        }
-
-class Fav_Character(db.Model):
-    __tablename__ = 'fav_character'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     character_id = db.Column(db.Integer, db.ForeignKey('character.id'))
-    user = db.relationship("User", lazy='subquery', backref=db.backref("Fav_Character", cascade="all,delete"))
-    character = db.relationship("Character", lazy='subquery', backref=db.backref("Fav_Character", cascade="all,delete"))
 
-    # tell python how convert the class object into a dictionary ready to jsonify
+    planet = db.relationship("Planet", lazy='subquery', backref=db.backref("Fav_Planet", cascade="all,delete"))
+    character = db.relationship("Character", lazy='subquery', backref=db.backref("Fav_Character", cascade="all,delete"))
+    user = db.relationship("User", lazy='subquery', backref=db.backref("Fav_User", cascade="all,delete"))
+    # tell python how to print the class object on the console
+    def __repr__(self):
+        return '<Fav %r>' % self.id
+
+     # tell python how convert the class object into a dictionary ready to jsonify
     def serialize(self):
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "character_id": self.character_id,
-            "content": self.character.serialize()
-        }
+        if(self.planet_id is not None and 
+            self.planet_id > 0 and 
+                (self.character_id is None or self.character_id <= 0)):
+            return {
+                "id": self.id,
+                "content_id": self.planet_id,
+                "name": self.planet.name,
+                "type": "planet"
+            }
+        else:
+            return {
+                "id": self.id,
+                "content_id": self.character_id,
+                "name": self.character.name,
+                "type": "people"
+            }

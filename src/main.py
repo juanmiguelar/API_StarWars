@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Planet, Character, Fav_Planet, Fav_Character
+from models import db, User, Planet, Character, Fav
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -77,25 +77,24 @@ def Get_Users():
 #@jwt_required()
 def Get_User_Fav(user_id):
     print("hola desde> Get_User_Fav")
-    user = User.query.get(user_id)
-    favs = list(map(lambda p: p.serialize(), user.Fav_Character)) + list(map(lambda p: p.serialize(), user.Fav_Planet))
-    return jsonify(favs), 200  
+    favs = Fav.query.filter_by(user_id=user_id)
+    response = list(map(lambda p: p.serialize(), favs))
+    return jsonify(response), 200  
 
 @app.route('/users/<int:user_id>/favorites', methods=['POST'])
 #@jwt_required()
 def POST_User_Fav(user_id):
-    print("hola desde> POST_User_Fav")
     tipo = request.json.get("tipo", None)
     id = request.json.get("id", None)
 
     if tipo == "planet":
-        favPlanet = Fav_Planet(user_id=user_id, planet_id=id)
+        favPlanet = Fav(user_id=user_id, planet_id=id)
         db.session.add(favPlanet)
         db.session.commit()
 
         return jsonify(favPlanet.serialize()), 200   
     elif tipo == "people":
-        favPeople = Fav_Character(user_id=user_id, character_id=id)
+        favPeople = Fav(user_id=user_id, character_id=id)
         db.session.add(favPeople)
         db.session.commit()
 
@@ -103,29 +102,17 @@ def POST_User_Fav(user_id):
 
     return APIException("BadRequest", status_code=400)
 
-@app.route('/favorite/<string:tipo>/<int:favorite_id>', methods=['DELETE'])
+@app.route('/favorite/<int:favorite_id>', methods=['DELETE'])
 #@jwt_required()
-def DELETE_User_Fav(tipo, favorite_id):
-    print("hola desde> DELETE_User_Fav")
-    print("hola desde> DELETE_User_Fav", tipo)
-    print("hola desde> DELETE_User_Fav", favorite_id)
-    if tipo == "planet":
-        fav_to_del = Fav_Planet.query.filter_by(id=favorite_id).first()
-        if fav_to_del is None:
-            return "Not Found", 404
-        else:
-           db.session.delete(fav_to_del)
-           db.session.commit()      
-           return jsonify(fav_to_del.serialize()), 200         
-    elif tipo == "people":
-        fav_to_del = Fav_Character.query.filter_by(id=favorite_id).first()
-        print(fav_to_del)
-        if fav_to_del is None:
-            return "Not Found", 404
-        else:
-            db.session.delete(fav_to_del)
-            db.session.commit()
-            return jsonify(fav_to_del.serialize()), 200           
+def DELETE_User_Fav(favorite_id):
+    fav_to_del = Fav.query.filter_by(id=favorite_id).first()
+    print(fav_to_del)
+    if fav_to_del is None:
+        return "Not Found", 404
+    else:
+        db.session.delete(fav_to_del)
+        db.session.commit()
+        return jsonify(fav_to_del.serialize()), 200           
     
     return "Bad Request", 400
       
